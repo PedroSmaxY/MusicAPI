@@ -4,13 +4,13 @@ import java.util.Date;
 
 public class Song {
 
-    private Long id;
+    private long id;
     private String name;
     private String artist;
     private String album;
     private Date releaseDate;
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 

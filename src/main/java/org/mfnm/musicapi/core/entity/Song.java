@@ -26,5 +26,7 @@ public class Song {
         return album;
     }
 
-    public Date getReleaseDate(){return  releaseDate;}
+    public Date getReleaseDate(){
+        return  releaseDate;
+    }
 }

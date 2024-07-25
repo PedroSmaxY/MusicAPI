@@ -38,10 +38,10 @@ public class Playlist {
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private User user;
 
-    @Column(name = "playlist_name", length = 100)
+    @Column(name = "playlist_title", length = 100)
     @NotNull
     @NotEmpty
-    private String name;
+    private String title;
 
     @OneToMany(mappedBy = "playlist")
     private List<Song> songs = new ArrayList<>();

@@ -1,8 +1,8 @@
 package org.mfnm.musicapi.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,23 +24,22 @@ public class Song {
     @Column(name = "id", unique = true)
     private Long id;
 
-    @Column(name = "songname", length = 100, nullable = false)
+    @Column(name = "songtitle", length = 100, nullable = false)
     @NotEmpty
-    private String name;
+    private String title;
 
     @Column(name = "artistname", length = 100, nullable = false)
     @NotEmpty
     private String artist;
 
-    @Column(name = "albumname", length = 100, nullable = true)
-    private String album;
+    @Column(name = "albumtitle", length = 100, nullable = true)
+    private String albumTitle;
 
-    /*
-     @Column(name = "audio_file_path", length = 255, nullable = true)
-     private Byte[] audioData;
-    */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(name = "audio_data", columnDefinition = "LONGBLOB", nullable = true)
+    private byte[] audioData;
 
     @ManyToOne
-    @JoinColumn(name = "playlist_id", nullable = false, updatable = true)
+    @JoinColumn(name = "playlist_id", nullable = true, updatable = true)
     private Playlist playlist;
 }

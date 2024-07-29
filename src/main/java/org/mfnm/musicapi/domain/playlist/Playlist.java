@@ -1,23 +1,17 @@
-package org.mfnm.musicapi.domain.entity;
+package org.mfnm.musicapi.domain.playlist;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.mfnm.musicapi.domain.song.Song;
+import org.mfnm.musicapi.domain.user.User;
 
 
 @Data
@@ -43,7 +37,12 @@ public class Playlist {
     @NotEmpty
     private String title;
 
-    @OneToMany(mappedBy = "playlist")
+    @ManyToMany
+    @JoinTable(
+            name = "playlist_song",
+            joinColumns = @JoinColumn(name = "playlist_id"),
+            inverseJoinColumns = @JoinColumn(name = "song_id")
+    )
     private List<Song> songs = new ArrayList<>();
 
 }

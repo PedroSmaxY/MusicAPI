@@ -1,7 +1,7 @@
 package org.mfnm.musicapi.controllers;
 
 import lombok.AllArgsConstructor;
-import org.mfnm.musicapi.domain.entity.Song;
+import org.mfnm.musicapi.domain.song.Song;
 import org.mfnm.musicapi.service.SongService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;

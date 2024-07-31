@@ -1,4 +1,4 @@
-package org.mfnm.musicapi.domain.entity;
+package org.mfnm.musicapi.domain.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.mfnm.musicapi.domain.playlist.Playlist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,11 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class User {
-    public class CreateUser {}
+    public class CreateUser {
+    }
 
-    public class UpdateUser {}
+    public class UpdateUser {
+    }
 
     public static final String TABLE_NAME = "user";
 
@@ -41,8 +44,8 @@ public class User {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password", length = 60, nullable = false)
-    @NotNull(groups = { CreateUser.class, UpdateUser.class })
-    @NotEmpty(groups = { CreateUser.class, UpdateUser.class })
+    @NotNull(groups = {CreateUser.class, UpdateUser.class})
+    @NotEmpty(groups = {CreateUser.class, UpdateUser.class})
     private String password;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

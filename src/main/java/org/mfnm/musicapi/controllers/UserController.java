@@ -2,7 +2,7 @@ package org.mfnm.musicapi.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.mfnm.musicapi.domain.entity.User;
+import org.mfnm.musicapi.domain.user.User;
 import org.mfnm.musicapi.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

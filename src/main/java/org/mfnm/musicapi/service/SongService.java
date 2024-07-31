@@ -1,7 +1,7 @@
 package org.mfnm.musicapi.service;
 
 import lombok.AllArgsConstructor;
-import org.mfnm.musicapi.domain.entity.Song;
+import org.mfnm.musicapi.domain.song.Song;
 import org.mfnm.musicapi.repository.SongRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

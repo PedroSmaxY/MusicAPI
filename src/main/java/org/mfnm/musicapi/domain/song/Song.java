@@ -1,4 +1,4 @@
-package org.mfnm.musicapi.domain.entity;
+package org.mfnm.musicapi.domain.song;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -7,6 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.mfnm.musicapi.domain.playlist.Playlist;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Data
@@ -39,7 +43,6 @@ public class Song {
     @Column(name = "audio_data", columnDefinition = "LONGBLOB", nullable = true)
     private byte[] audioData;
 
-    @ManyToOne
-    @JoinColumn(name = "playlist_id", nullable = true, updatable = true)
-    private Playlist playlist;
+    @ManyToMany(mappedBy = "songs")
+    private List<Playlist> playlists = new ArrayList<>();
 }

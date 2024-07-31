@@ -1,7 +1,9 @@
 package org.mfnm.musicapi.domain.user;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -22,11 +24,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User {
-    public class CreateUser {
+    public static class CreateUser {
     }
 
-    public class UpdateUser {
+    public static class UpdateUser {
     }
 
     public static final String TABLE_NAME = "user";

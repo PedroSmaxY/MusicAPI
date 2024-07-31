@@ -3,6 +3,7 @@ package org.mfnm.musicapi.service;
 import lombok.AllArgsConstructor;
 import org.mfnm.musicapi.domain.song.Song;
 import org.mfnm.musicapi.repository.SongRepository;
+import org.mfnm.musicapi.service.exceptions.SongAlreadyExistsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +37,18 @@ public class SongService {
 
     @Transactional
     public Song create(Song song) {
-        song.setId(null);
-        return songRepository.save(song);
+        List<Song> existingSongs = this.songRepository.findByTitle(song.getTitle());
+
+        boolean songExists = existingSongs.stream()
+                .anyMatch(existingSong -> existingSong.getArtist().equals(song.getArtist()));
+
+        if (!songExists) {
+            return songRepository.save(song);
+        }
+
+        throw new SongAlreadyExistsException(
+                "Song with title '" + song.getTitle() + "' by artist '" + song.getArtist() + "' already exists!"
+        );
     }
 
     @Transactional

@@ -10,9 +10,7 @@ import org.mfnm.musicapi.repository.SongRepository;
 import org.mfnm.musicapi.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor

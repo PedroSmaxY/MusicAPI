@@ -43,8 +43,13 @@ public class Song {
     private String albumTitle;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Column(name = "audio_data", columnDefinition = "LONGBLOB", nullable = true)
+    @Lob
+    @Column(name = "audio_data", columnDefinition = "LONGBLOB", nullable = false)
     private byte[] audioData;
+
+    @Lob
+    @Column(name = "image_data", columnDefinition = "TINYBLOB", nullable = true)
+    private byte[] imageData;
 
     @ManyToMany(mappedBy = "songs")
     private List<Playlist> playlists = new ArrayList<>();

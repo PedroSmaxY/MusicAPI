@@ -2,6 +2,8 @@ package org.mfnm.musicapi.controllers;
 
 import lombok.AllArgsConstructor;
 import org.mfnm.musicapi.domain.song.Song;
+import org.mfnm.musicapi.domain.song.SongRequestDTO;
+import org.mfnm.musicapi.domain.song.SongUpdateDTO;
 import org.mfnm.musicapi.service.SongService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -56,27 +58,38 @@ public class SongController {
 
     @PostMapping("/upload")
     @Validated
-    public ResponseEntity<String> createSong(@RequestParam MultipartFile file,
+    public ResponseEntity<String> createSong(@RequestParam MultipartFile audioFile,
+                                             @RequestParam(required = false) MultipartFile imageFile,
                                              @RequestParam String title,
                                              @RequestParam String artist,
-                                             @RequestParam(required = false) String albumTitle,
-                                             @RequestParam(required = false) Long playlistId) {
+                                             @RequestParam(required = false) String albumTitle) {
 
         try {
-            Song song = new Song();
-            song.setTitle(title);
-            song.setArtist(artist);
-            song.setAlbumTitle(albumTitle);
-            song.setAudioData(file.getBytes());
+            if (audioFile.isEmpty()) {
+                return ResponseEntity
+                        .badRequest()
+                        .body("Audio file is required.");
+            }
 
-            Song createdSong = this.songService.create(song);
+            byte[] audioData = audioFile.getBytes();
+            byte[] imageData = (imageFile != null) ? imageFile.getBytes() : null;
+
+            SongRequestDTO songRequestDTO = new SongRequestDTO(
+                    title,
+                    artist,
+                    albumTitle,
+                    audioData,
+                    imageData
+            );
+
+            Song createdSong = songService.create(songRequestDTO);
 
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}")
                     .buildAndExpand(createdSong.getId())
                     .toUri();
 
-            return ResponseEntity.created(uri).body("File uploaded succefully");
+            return ResponseEntity.created(uri).body("File uploaded successfully");
 
         } catch (IOException e) {
             return ResponseEntity
@@ -87,12 +100,35 @@ public class SongController {
 
     @PutMapping("/update/{id}")
     @Validated
-    public ResponseEntity<Song> updateSong(@PathVariable Long id, @Validated @RequestBody Song song) {
-        if (!id.equals(song.getId())) {
-            throw new IllegalArgumentException("ID in path and request body do not match.");
+    public ResponseEntity<String> updateSong(@PathVariable Long id,
+                                             @RequestParam String title,
+                                             @RequestParam String artist,
+                                             @RequestParam(required = false) String albumTitle,
+                                             @RequestParam(required = false) MultipartFile image) {
+
+        try {
+            byte[] imageData = (image != null) ? image.getBytes() : null;
+            SongUpdateDTO songUpdateDTO = new SongUpdateDTO(
+                    id,
+                    title,
+                    artist,
+                    albumTitle,
+                    imageData
+            );
+
+            if (!id.equals(songUpdateDTO.id())) {
+                throw new IllegalArgumentException("ID in path and request body do not match.");
+            }
+
+            Song updatedSong = songService.updateSong(songUpdateDTO);
+            return ResponseEntity.noContent().build();
+
+        } catch (IOException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("File upload failed.");
         }
-        Song updatedSong = this.songService.update(song);
-        return ResponseEntity.ok(updatedSong);
     }
 
     @DeleteMapping("/delete/{id}")

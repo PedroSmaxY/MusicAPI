@@ -3,12 +3,14 @@ package org.mfnm.musicapi.service;
 import lombok.AllArgsConstructor;
 import org.mfnm.musicapi.domain.playlist.Playlist;
 import org.mfnm.musicapi.domain.playlist.PlaylistRequestDTO;
+import org.mfnm.musicapi.domain.playlist.PlaylistUpdateDTO;
 import org.mfnm.musicapi.domain.song.Song;
 import org.mfnm.musicapi.domain.user.User;
 import org.mfnm.musicapi.repository.PlaylistRepository;
 import org.mfnm.musicapi.repository.SongRepository;
 import org.mfnm.musicapi.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,63 +28,72 @@ public class PlaylistService {
         );
     }
 
+    @Transactional
+    public Playlist createPlaylist(PlaylistRequestDTO playlistRequestDTO) {
 
-    public Playlist createPlaylistWithSongs(String title, Long userId, List<Long> songIds) {
-        Playlist playlist = new Playlist();
-        List<Song> songs = this.songRepository.findAllById(songIds);
-        User user = this.userRepository.findById(userId)
+        User user = this.userRepository.findById(playlistRequestDTO.userId())
                 .orElseThrow(() -> new RuntimeException("User not found!"));
 
-        playlist.setId(null);
+        Playlist playlist = new Playlist();
+        playlist.setTitle(playlistRequestDTO.title());
         playlist.setUser(user);
-        playlist.setTitle(title);
+
+        if (playlistRequestDTO.imageData() != null) {
+            playlist.setImageData(playlistRequestDTO.imageData());
+        }
+
+        List<Song> songs = this.songRepository.findAllById(playlistRequestDTO.songIds());
         playlist.setSongs(songs);
 
         return this.playlistRepository.save(playlist);
     }
 
-    public Playlist createPlaylistEmpty(String title, Long userId) {
-        Playlist playlist = new Playlist();
-        User user = this.userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found!")
-        );
-
-        playlist.setId(null);
-        playlist.setTitle(title);
-        playlist.setUser(user);
-        playlist.setSongs(List.of());
-
-        return this.playlistRepository.save(playlist);
-    }
-
+    @Transactional
     public Playlist addSongsToPlaylist(Long playlistId, List<Long> songIds) {
         Playlist playlist = this.playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Playlist not found!"
-                ));
+                .orElseThrow(() -> new RuntimeException("Playlist not found"));
 
-        List<Song> songs = this.songRepository.findAllById(songIds);
-        playlist.getSongs().addAll(songs);
+        playlist.getSongs().addAll(this.songRepository.findAllById(songIds));
         return this.playlistRepository.save(playlist);
     }
 
+    @Transactional
     public Playlist removeSongsFromPlaylist(Long playlistId, List<Long> songIds) {
         Playlist playlist = this.playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new RuntimeException("Playlist not found!"));
-        List<Song> songsToRemove = this.songRepository.findAllById(songIds);
+                .orElseThrow(() -> new RuntimeException("Playlist not found"));
 
-        playlist.getSongs().removeAll(songsToRemove);
+        playlist.getSongs().removeIf(song -> songIds.contains(song.getId()));
         return this.playlistRepository.save(playlist);
     }
 
-    public Playlist updatePlaylist(Long playlistId, PlaylistRequestDTO playlistRequestDTO) {
+    @Transactional
+    public void updatePlaylist(Long playlistId, PlaylistUpdateDTO playlistUpdateDTO) {
 
         Playlist playlist = this.playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new RuntimeException("Playlist not found!"));
 
-        playlist.setTitle(playlistRequestDTO.title());
-        playlist.setSongs(this.songRepository.findAllById(playlistRequestDTO.songIds()));
+        playlist.setTitle(playlistUpdateDTO.title());
 
-        return this.playlistRepository.save(playlist);
+        if (playlistUpdateDTO.image_data() != null) {
+            playlist.setImageData(playlistUpdateDTO.image_data());
+        }
+
+        this.playlistRepository.save(playlist);
+    }
+
+    @Transactional
+    public void deletePlaylist(Long playlistId) {
+
+        Playlist playlist = this.playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new RuntimeException("Playlist not found"));
+
+        playlist.getSongs().forEach(song -> song.getPlaylists().remove(playlist));
+        this.songRepository.saveAll(playlist.getSongs());
+
+        User user = playlist.getUser();
+        user.getPlaylists().remove(playlist);
+        this.userRepository.save(user);
+
+        this.playlistRepository.delete(playlist);
     }
 }

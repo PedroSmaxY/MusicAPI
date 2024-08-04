@@ -1,4 +1,4 @@
-package org.mfnm.musicapi.config;
+package org.mfnm.musicapi.configs;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

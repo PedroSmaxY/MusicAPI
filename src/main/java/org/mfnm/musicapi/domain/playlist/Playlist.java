@@ -40,6 +40,10 @@ public class Playlist {
     @NotEmpty
     private String title;
 
+    @Lob
+    @Column(name = "image_data", columnDefinition = "LONGBLOB")
+    private byte[] imageData;
+
     @ManyToMany
     @JoinTable(
             name = "playlist_song",

@@ -1,4 +1,4 @@
-package org.mfnm.musicapi.repository;
+package org.mfnm.musicapi.repositories;
 
 import org.mfnm.musicapi.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

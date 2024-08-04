@@ -1,8 +1,10 @@
-package org.mfnm.musicapi.service;
+package org.mfnm.musicapi.services;
 
 import lombok.AllArgsConstructor;
 import org.mfnm.musicapi.domain.user.User;
-import org.mfnm.musicapi.repository.UserRepository;
+import org.mfnm.musicapi.repositories.PlaylistRepository;
+import org.mfnm.musicapi.repositories.UserRepository;
+import org.mfnm.musicapi.services.exceptions.UserNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,18 +15,19 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PlaylistRepository playlistRepository;
 
     public User findById(Long id) {
         Optional<User> user = this.userRepository.findById(id);
-        return user.orElseThrow(() -> new RuntimeException(
-                "User not found! Id: " + id + ", Type: " + User.class.getName()
+        return user.orElseThrow(() -> new UserNotFoundException(
+                "User with ID " + id + " not found in the system."
         ));
     }
 
     public User findByUsername(String username) {
         Optional<User> user = this.userRepository.findByUsername(username);
-        return user.orElseThrow(() -> new RuntimeException(
-                "User not found! Username: " + username
+        return user.orElseThrow(() -> new UserNotFoundException(
+                "User with username '" + username + "' not found in the system."
         ));
     }
 
@@ -43,14 +46,14 @@ public class UserService {
         return this.userRepository.save(newUser);
     }
 
-    public void deleteById(Long id) {
-        findById(id);
-        try {
-            this.userRepository.deleteById(id);
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "Not possible to delete because exist related entities!"
-            );
-        }
+    @Transactional
+    public void deleteUser(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found in the system."));
+
+        playlistRepository.deleteAll(user.getPlaylists());
+
+        userRepository.deleteById(id);
     }
 }

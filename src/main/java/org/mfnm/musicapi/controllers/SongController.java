@@ -1,11 +1,16 @@
 package org.mfnm.musicapi.controllers;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.mfnm.musicapi.domain.song.Song;
 import org.mfnm.musicapi.domain.song.SongRequestDTO;
+import org.mfnm.musicapi.domain.song.SongResponseDTO;
 import org.mfnm.musicapi.domain.song.SongUpdateDTO;
-import org.mfnm.musicapi.service.SongService;
-import org.springframework.core.io.InputStreamResource;
+import org.mfnm.musicapi.services.SongService;
+import org.mfnm.musicapi.services.exceptions.BusinessLogicException;
+import org.mfnm.musicapi.services.exceptions.FileProcessingException;
+import org.mfnm.musicapi.services.exceptions.SongNotFoundException;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
@@ -13,10 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Validated
@@ -27,41 +33,60 @@ public class SongController {
     private final SongService songService;
 
     @GetMapping("/{title}")
-    public ResponseEntity<List<Song>> getSong(@PathVariable String title) {
-        List<Song> songs = this.songService.findByTitle(title);
-        return ResponseEntity.ok().body(songs);
+    public ResponseEntity<List<SongResponseDTO>> getSongsByTitle(@PathVariable String title) {
+        List<Song> songs = songService.findByTitle(title);
+        List<SongResponseDTO> responseDTOs = songs.stream().map(song -> new SongResponseDTO(
+                song.getId(),
+                song.getTitle(),
+                song.getArtist(),
+                song.getAlbumTitle(),
+                song.getImageData() != null ? Base64.getEncoder().encodeToString(song.getImageData()) : null
+        )).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(responseDTOs);
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<Song> getSongById(@PathVariable Long id) {
+    public ResponseEntity<SongResponseDTO> getSongById(@PathVariable Long id) {
         Song song = this.songService.findById(id);
-        return ResponseEntity.ok().body(song);
+        SongResponseDTO songResponseDTO = new SongResponseDTO(
+                song.getId(),
+                song.getTitle(),
+                song.getArtist(),
+                song.getAlbumTitle(),
+                song.getImageData() != null ? Base64.getEncoder().encodeToString(song.getImageData()) : null
+        );
+        return ResponseEntity.ok().body(songResponseDTO);
     }
 
     @GetMapping("/download/{id}")
     public ResponseEntity<Resource> downloadSong(@PathVariable Long id) {
         try {
-            Song song = this.songService.findById(id);
-            byte[] audioData = song.getAudioData();
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(audioData);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.valueOf("audio/mpeg"));
-            headers.setContentDispositionFormData("attachment", song.getTitle() + ".mp3");
-
-            InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
-            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+            return songService.getSongResourceResponse(id, true);
+        } catch (SongNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            throw new FileProcessingException("Error processing the requested song");
+        }
+    }
+
+    @GetMapping("/stream/{id}")
+    public ResponseEntity<Resource> streamSong(@PathVariable Long id) {
+        try {
+            return songService.getSongResourceResponse(id, false);
+        } catch (SongNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FileProcessingException("Error processing the requested song");
         }
     }
 
     @PostMapping("/upload")
     @Validated
-    public ResponseEntity<String> createSong(@RequestParam MultipartFile audioFile,
+    public ResponseEntity<String> createSong(@RequestParam @NotNull MultipartFile audioFile,
                                              @RequestParam(required = false) MultipartFile imageFile,
-                                             @RequestParam String title,
-                                             @RequestParam String artist,
+                                             @RequestParam @NotBlank String title,
+                                             @RequestParam @NotBlank String artist,
                                              @RequestParam(required = false) String albumTitle) {
 
         try {
@@ -92,9 +117,7 @@ public class SongController {
             return ResponseEntity.created(uri).body("File uploaded successfully");
 
         } catch (IOException e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("File upload failed.");
+            throw new FileProcessingException("Error processing the file upload");
         }
     }
 
@@ -104,10 +127,10 @@ public class SongController {
                                              @RequestParam String title,
                                              @RequestParam String artist,
                                              @RequestParam(required = false) String albumTitle,
-                                             @RequestParam(required = false) MultipartFile image) {
+                                             @RequestParam(required = false) MultipartFile imageFile) {
 
         try {
-            byte[] imageData = (image != null) ? image.getBytes() : null;
+            byte[] imageData = (imageFile != null) ? imageFile.getBytes() : null;
             SongUpdateDTO songUpdateDTO = new SongUpdateDTO(
                     id,
                     title,
@@ -117,17 +140,16 @@ public class SongController {
             );
 
             if (!id.equals(songUpdateDTO.id())) {
-                throw new IllegalArgumentException("ID in path and request body do not match.");
+                throw new BusinessLogicException("ID in path and request body do not match.");
             }
 
             Song updatedSong = songService.updateSong(songUpdateDTO);
             return ResponseEntity.noContent().build();
 
         } catch (IOException e) {
-
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("File upload failed.");
+            throw new FileProcessingException("Error processing the file upload");
+        } catch (Exception e) {
+            throw new FileProcessingException("Error updating the song");
         }
     }
 

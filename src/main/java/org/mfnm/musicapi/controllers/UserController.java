@@ -3,7 +3,8 @@ package org.mfnm.musicapi.controllers;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.mfnm.musicapi.domain.user.User;
-import org.mfnm.musicapi.service.UserService;
+import org.mfnm.musicapi.services.UserService;
+import org.mfnm.musicapi.services.exceptions.BusinessLogicException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +44,11 @@ public class UserController {
     @PutMapping("/{id}")
     @Validated
     public ResponseEntity<Void> updateById(@PathVariable Long id, @Valid @RequestBody User user) {
+
+        if (!id.equals(user.getId())) {
+            throw new BusinessLogicException("ID in path and request body do not match.");
+        }
+
         user.setId(id);
         this.userService.update(user);
         return ResponseEntity.noContent().build();
@@ -59,14 +65,14 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        this.userService.deleteById(id);
+        this.userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/username/{username}")
     public ResponseEntity<Void> deleteUsername(@PathVariable String username) {
         User user = this.userService.findByUsername(username);
-        this.userService.deleteById(user.getId());
+        this.userService.deleteUser(user.getId());
         return ResponseEntity.noContent().build();
     }
 }

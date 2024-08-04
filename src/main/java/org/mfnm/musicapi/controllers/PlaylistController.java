@@ -5,8 +5,9 @@ import org.mfnm.musicapi.domain.playlist.Playlist;
 import org.mfnm.musicapi.domain.playlist.PlaylistRequestDTO;
 import org.mfnm.musicapi.domain.playlist.PlaylistResponseDTO;
 import org.mfnm.musicapi.domain.playlist.PlaylistUpdateDTO;
-import org.mfnm.musicapi.service.PlaylistService;
-import org.springframework.http.HttpStatus;
+import org.mfnm.musicapi.services.PlaylistService;
+import org.mfnm.musicapi.services.exceptions.BusinessLogicException;
+import org.mfnm.musicapi.services.exceptions.FileProcessingException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,11 +39,10 @@ public class PlaylistController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createPlaylist(
-            @RequestParam String title,
-            @RequestParam Long userId,
-            @RequestParam(required = false) MultipartFile imageFile,
-            @RequestParam(required = false) List<Long> songIds) {
+    public ResponseEntity<String> createPlaylist(@RequestParam String title,
+                                                 @RequestParam Long userId,
+                                                 @RequestParam(required = false) MultipartFile imageFile,
+                                                 @RequestParam(required = false) List<Long> songIds) {
 
         try {
             byte[] imageData = (imageFile != null) ? imageFile.getBytes() : null;
@@ -64,9 +64,7 @@ public class PlaylistController {
             return ResponseEntity.created(uri).build();
 
         } catch (IOException e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("File upload failed.");
+            throw new FileProcessingException("Error processing the file upload");
         }
     }
 
@@ -84,10 +82,10 @@ public class PlaylistController {
         return ResponseEntity.ok().body(newPlaylist);
     }
 
-    @PutMapping("/{playlistId}")
+    @PutMapping("/update/{playlistId}")
     public ResponseEntity<String> updatePlaylist(@PathVariable Long playlistId,
-                                                 @RequestBody String title,
-                                                 @RequestBody(required = false) MultipartFile imageFile) {
+                                                 @RequestParam String title,
+                                                 @RequestParam(required = false) MultipartFile imageFile) {
 
         try {
             byte[] imageData = (imageFile != null) ? imageFile.getBytes() : null;
@@ -98,15 +96,18 @@ public class PlaylistController {
                     imageData
             );
 
+            if (!playlistId.equals(playlistUpdateDTO.id())) {
+                throw new BusinessLogicException("ID in path and request body do not match.");
+            }
+
             this.playlistService.updatePlaylist(playlistId, playlistUpdateDTO);
 
             return ResponseEntity.noContent().build();
 
         } catch (IOException e) {
-
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("File upload failed.");
+            throw new FileProcessingException("Error processing the file upload");
+        } catch (Exception e) {
+            throw new FileProcessingException("Error updating the playlist");
         }
     }
 

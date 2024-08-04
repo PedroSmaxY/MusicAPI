@@ -41,7 +41,7 @@ public class Playlist {
     private String title;
 
     @Lob
-    @Column(name = "image_data", nullable = true)
+    @Column(name = "image_data", columnDefinition = "LONGBLOB")
     private byte[] imageData;
 
     @ManyToMany

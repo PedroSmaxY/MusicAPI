@@ -57,6 +57,6 @@ public class User {
     @NotNull
     private String email;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Playlist> playlists = new ArrayList<>();
 }

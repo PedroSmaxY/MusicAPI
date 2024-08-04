@@ -48,7 +48,7 @@ public class Song {
     private byte[] audioData;
 
     @Lob
-    @Column(name = "image_data", columnDefinition = "TINYBLOB", nullable = true)
+    @Column(name = "image_data", columnDefinition = "LONGBLOB", nullable = true)
     private byte[] imageData;
 
     @ManyToMany(mappedBy = "songs")

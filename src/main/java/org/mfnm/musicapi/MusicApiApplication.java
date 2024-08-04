@@ -1,4 +1,4 @@
-package org.mfnm.musicapi.infra.rest;
+package org.mfnm.musicapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

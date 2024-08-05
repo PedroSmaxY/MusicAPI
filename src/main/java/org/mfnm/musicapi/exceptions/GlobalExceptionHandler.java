@@ -2,10 +2,7 @@ package org.mfnm.musicapi.exceptions;
 
 import javax.validation.ConstraintViolationException;
 
-import org.mfnm.musicapi.services.exceptions.BusinessLogicException;
-import org.mfnm.musicapi.services.exceptions.ConflictException;
-import org.mfnm.musicapi.services.exceptions.FileProcessingException;
-import org.mfnm.musicapi.services.exceptions.ObjectNotFoundException;
+import org.mfnm.musicapi.services.exceptions.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
@@ -131,6 +128,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildErrorResponse(
                 businessLogicException,
                 HttpStatus.BAD_REQUEST,
+                request);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<Object> handleBusinessLogicException(
+            UnauthorizedException unauthorizedException,
+            WebRequest request) {
+        log.error("Business logic error occurred: {}", unauthorizedException.getMessage(), unauthorizedException);
+        return buildErrorResponse(
+                unauthorizedException,
+                HttpStatus.UNAUTHORIZED,
                 request);
     }
 

@@ -40,7 +40,7 @@ public class UserController {
         return ResponseEntity.ok().body(user);
     }
 
-    @PostMapping
+    @PostMapping("/register")
     @Validated
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         this.userService.create(user);

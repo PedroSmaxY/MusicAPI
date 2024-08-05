@@ -70,6 +70,12 @@ public class SongController {
         return ResponseEntity.ok(responsePage);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Song>> search(@RequestParam String query) {
+        List<Song> songs = this.songService.search(query);
+        return ResponseEntity.ok(songs);
+    }
+
     @GetMapping("/id/{id}")
     public ResponseEntity<SongResponseDTO> getSongById(@PathVariable Long id) {
         Song song = this.songService.findById(id);

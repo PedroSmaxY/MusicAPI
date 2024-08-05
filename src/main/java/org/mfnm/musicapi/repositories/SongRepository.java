@@ -16,7 +16,10 @@ public interface SongRepository extends JpaRepository<Song, Long> {
 
     public List<Song> findByArtist(String artist);
 
+    @Override
     Page<Song> findAll(Pageable pageable);
+
+    public List<Song> findByTitleContainingIgnoreCase(String query);
 
     @Query("SELECT s FROM Song s WHERE s.albumTitle = :albumTitle")
     public List<Song> findByAlbum(@Param("albumTitle") String albumTitle);

@@ -8,6 +8,10 @@ import org.mfnm.musicapi.domain.playlist.PlaylistUpdateDTO;
 import org.mfnm.musicapi.services.PlaylistService;
 import org.mfnm.musicapi.services.exceptions.BusinessLogicException;
 import org.mfnm.musicapi.services.exceptions.FileProcessingException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +40,24 @@ public class PlaylistController {
         );
 
         return ResponseEntity.ok(responseDTO);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<PlaylistResponseDTO>> getAllPlaylists(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<Playlist> playlistsPage = this.playlistService.findAllPlaylists(pageable);
+
+        Page<PlaylistResponseDTO> responsePage = playlistsPage.map(playlist -> new PlaylistResponseDTO(
+                playlist.getId(),
+                playlist.getTitle(),
+                playlist.getImageData() != null ? Base64.getEncoder().encodeToString(playlist.getImageData()) : null
+        ));
+
+        return ResponseEntity.ok(responsePage);
     }
 
     @PostMapping("/create")

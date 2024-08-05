@@ -3,6 +3,7 @@ package org.mfnm.musicapi.controllers;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.mfnm.musicapi.domain.user.User;
+import org.mfnm.musicapi.domain.user.UserRequestDTO;
 import org.mfnm.musicapi.services.UserService;
 import org.mfnm.musicapi.services.exceptions.BusinessLogicException;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,13 @@ public class UserController {
     @GetMapping("/username/{username}")
     public ResponseEntity<User> findByUsername(@PathVariable String username) {
         User user = userService.findByUsername(username);
+        return ResponseEntity.ok().body(user);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<User> login(@RequestBody UserRequestDTO userRequestDTO) {
+        User user = this.userService.login(userRequestDTO);
+
         return ResponseEntity.ok().body(user);
     }
 

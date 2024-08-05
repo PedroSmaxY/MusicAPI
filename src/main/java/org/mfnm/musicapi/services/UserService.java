@@ -2,8 +2,10 @@ package org.mfnm.musicapi.services;
 
 import lombok.AllArgsConstructor;
 import org.mfnm.musicapi.domain.user.User;
+import org.mfnm.musicapi.domain.user.UserRequestDTO;
 import org.mfnm.musicapi.repositories.PlaylistRepository;
 import org.mfnm.musicapi.repositories.UserRepository;
+import org.mfnm.musicapi.services.exceptions.BusinessLogicException;
 import org.mfnm.musicapi.services.exceptions.UserNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,24 @@ public class UserService {
                 "User with username '" + username + "' not found in the system."
         ));
     }
+
+    public User login(UserRequestDTO userRequestDTO) {
+        String usernameOrEmail = userRequestDTO.usernameOrEmail();
+        String password = userRequestDTO.password();
+
+        User user = userRepository.findByUsername(usernameOrEmail)
+                .or(() -> userRepository.findByEmail(usernameOrEmail))
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User with username or email " + usernameOrEmail + " not found in the system."
+                ));
+
+        if (!password.equals(user.getPassword())) {
+            throw new BusinessLogicException("Incorrect password");
+        }
+
+        return user;
+    }
+
 
     @Transactional
     public User create(User user) {

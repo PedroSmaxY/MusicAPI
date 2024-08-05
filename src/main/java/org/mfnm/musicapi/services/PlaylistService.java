@@ -12,6 +12,8 @@ import org.mfnm.musicapi.repositories.UserRepository;
 import org.mfnm.musicapi.services.exceptions.PlaylistNotFoundException;
 import org.mfnm.musicapi.services.exceptions.SongNotFoundException;
 import org.mfnm.musicapi.services.exceptions.UserNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,10 @@ public class PlaylistService {
         return this.playlistRepository.findById(id).orElseThrow(
                 () -> new PlaylistNotFoundException("Playlist with ID " + id + " not found in the system.")
         );
+    }
+
+    public Page<Playlist> findAllPlaylists(Pageable pageable) {
+        return this.playlistRepository.findAll(pageable);
     }
 
     @Transactional

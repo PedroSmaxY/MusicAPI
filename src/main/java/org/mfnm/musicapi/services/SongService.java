@@ -11,6 +11,8 @@ import org.mfnm.musicapi.services.exceptions.SongAlreadyExistsException;
 import org.mfnm.musicapi.services.exceptions.SongNotFoundException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,6 +35,10 @@ public class SongService {
                 .orElseThrow(() -> new SongNotFoundException(
                         "Song with ID " + id + " not found in the system."
                 ));
+    }
+
+    public Page<Song> findAllSongs(Pageable pageable) {
+        return this.songRepository.findAll(pageable);
     }
 
     public List<Song> findByTitle(String title) {
@@ -124,4 +130,5 @@ public class SongService {
         }
         return headers;
     }
+
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @Validated
@@ -31,6 +32,12 @@ public class UserController {
     public ResponseEntity<User> findByUsername(@PathVariable String username) {
         User user = userService.findByUsername(username);
         return ResponseEntity.ok().body(user);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<User>> searchUsers(@RequestParam String query) {
+        List<User> users = this.userService.searchUser(query);
+        return ResponseEntity.ok().body(users);
     }
 
     @PostMapping("/login")

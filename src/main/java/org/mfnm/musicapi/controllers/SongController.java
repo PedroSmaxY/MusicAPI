@@ -3,6 +3,7 @@ package org.mfnm.musicapi.controllers;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.mfnm.musicapi.domain.song.Song;
 import org.mfnm.musicapi.domain.song.SongRequestDTO;
 import org.mfnm.musicapi.domain.song.SongResponseDTO;
@@ -71,7 +72,7 @@ public class SongController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Song>> search(@RequestParam String query) {
+    public ResponseEntity<List<Song>> search(@NonNull @RequestParam String query) {
         List<Song> songs = this.songService.search(query);
         return ResponseEntity.ok(songs);
     }

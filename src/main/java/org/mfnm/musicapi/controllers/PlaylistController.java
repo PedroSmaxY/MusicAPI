@@ -1,6 +1,7 @@
 package org.mfnm.musicapi.controllers;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.mfnm.musicapi.domain.playlist.Playlist;
 import org.mfnm.musicapi.domain.playlist.PlaylistRequestDTO;
 import org.mfnm.musicapi.domain.playlist.PlaylistResponseDTO;
@@ -61,7 +62,7 @@ public class PlaylistController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Playlist>> search(@RequestParam String query) {
+    public ResponseEntity<List<Playlist>> search(@NonNull @RequestParam String query) {
         List<Playlist> playlists = this.playlistService.search(query);
         return ResponseEntity.ok(playlists);
     }

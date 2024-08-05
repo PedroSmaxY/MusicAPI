@@ -2,6 +2,7 @@ package org.mfnm.musicapi.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.mfnm.musicapi.domain.user.User;
 import org.mfnm.musicapi.domain.user.UserRequestDTO;
 import org.mfnm.musicapi.services.UserService;
@@ -35,7 +36,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<User>> searchUsers(@RequestParam String query) {
+    public ResponseEntity<List<User>> searchUsers(@NonNull @RequestParam String query) {
         List<User> users = this.userService.searchUser(query);
         return ResponseEntity.ok().body(users);
     }

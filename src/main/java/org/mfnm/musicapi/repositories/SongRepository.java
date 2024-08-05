@@ -1,5 +1,6 @@
 package org.mfnm.musicapi.repositories;
 
+import lombok.NonNull;
 import org.mfnm.musicapi.domain.song.Song;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +17,8 @@ public interface SongRepository extends JpaRepository<Song, Long> {
 
     public List<Song> findByArtist(String artist);
 
-    @Override
-    Page<Song> findAll(Pageable pageable);
+    @NonNull
+    Page<Song> findAll(@NonNull Pageable pageable);
 
     public List<Song> findByTitleContainingIgnoreCase(String query);
 

@@ -39,6 +39,10 @@ public class PlaylistService {
         return this.playlistRepository.findAll(pageable);
     }
 
+    public List<Playlist> search(String query) {
+        return this.playlistRepository.findByTitleContainingIgnoreCase(query);
+    }
+
     @Transactional
     public Playlist createPlaylist(PlaylistRequestDTO playlistRequestDTO) {
         User user = this.userRepository.findById(playlistRequestDTO.userId())

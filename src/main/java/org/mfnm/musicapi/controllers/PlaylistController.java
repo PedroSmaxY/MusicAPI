@@ -60,6 +60,12 @@ public class PlaylistController {
         return ResponseEntity.ok(responsePage);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Playlist>> search(@RequestParam String query) {
+        List<Playlist> playlists = this.playlistService.search(query);
+        return ResponseEntity.ok(playlists);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<String> createPlaylist(@RequestParam String title,
                                                  @RequestParam Long userId,

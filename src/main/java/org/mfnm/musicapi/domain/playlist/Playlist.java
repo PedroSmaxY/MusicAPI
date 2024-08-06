@@ -21,7 +21,7 @@ import org.mfnm.musicapi.domain.user.User;
 @Table(name = Playlist.TABLE_NAME)
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Playlist {
     public static final String TABLE_NAME = "playlist";

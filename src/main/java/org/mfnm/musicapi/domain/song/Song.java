@@ -20,7 +20,7 @@ import java.util.List;
 @Table(name = Song.TABLE_NAME)
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Song {
 

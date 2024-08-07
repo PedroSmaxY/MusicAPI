@@ -24,7 +24,7 @@ import java.util.List;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Song {
 
-    public static final String TABLE_NAME = "song";
+    public static final String TABLE_NAME = "songs";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

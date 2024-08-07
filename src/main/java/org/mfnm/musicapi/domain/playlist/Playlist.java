@@ -24,7 +24,7 @@ import org.mfnm.musicapi.domain.user.User;
 @EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Playlist {
-    public static final String TABLE_NAME = "playlist";
+    public static final String TABLE_NAME = "playlists";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

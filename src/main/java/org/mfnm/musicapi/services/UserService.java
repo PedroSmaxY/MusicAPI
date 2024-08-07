@@ -5,7 +5,6 @@ import org.mfnm.musicapi.domain.user.User;
 import org.mfnm.musicapi.domain.user.UserRequestDTO;
 import org.mfnm.musicapi.repositories.PlaylistRepository;
 import org.mfnm.musicapi.repositories.UserRepository;
-import org.mfnm.musicapi.services.exceptions.BusinessLogicException;
 import org.mfnm.musicapi.services.exceptions.UnauthorizedException;
 import org.mfnm.musicapi.services.exceptions.UserNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;

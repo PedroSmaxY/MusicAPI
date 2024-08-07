@@ -136,7 +136,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleBusinessLogicException(
             UnauthorizedException unauthorizedException,
             WebRequest request) {
-        log.error("Business logic error occurred: {}", unauthorizedException.getMessage(), unauthorizedException);
+        log.error("Unauthorized action detected: {}", unauthorizedException.getMessage(), unauthorizedException);
         return buildErrorResponse(
                 unauthorizedException,
                 HttpStatus.UNAUTHORIZED,

@@ -3,6 +3,7 @@ package org.mfnm.musicapi.controllers;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.mfnm.musicapi.domain.song.Song;
 import org.mfnm.musicapi.domain.song.SongRequestDTO;
 import org.mfnm.musicapi.domain.song.SongResponseDTO;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @Validated
-@RequestMapping("/song")
+@RequestMapping("/songs")
 @AllArgsConstructor
 public class SongController {
 
@@ -68,6 +69,12 @@ public class SongController {
         ));
 
         return ResponseEntity.ok(responsePage);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Song>> search(@NonNull @RequestParam String query) {
+        List<Song> songs = this.songService.search(query);
+        return ResponseEntity.ok(songs);
     }
 
     @GetMapping("/id/{id}")
@@ -183,4 +190,3 @@ public class SongController {
         return ResponseEntity.noContent().build();
     }
 }
-

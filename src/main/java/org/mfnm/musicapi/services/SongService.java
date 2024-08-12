@@ -53,6 +53,9 @@ public class SongService {
         return this.songRepository.findByAlbum(album);
     }
 
+    public List<Song> search(String query) {
+        return this.songRepository.findByTitleContainingIgnoreCase(query);
+    }
     @Transactional
     public Song create(SongRequestDTO songRequestDTO) {
 

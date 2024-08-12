@@ -1,5 +1,6 @@
 package org.mfnm.musicapi.repositories;
 
+import lombok.NonNull;
 import org.mfnm.musicapi.domain.song.Song;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,12 +13,15 @@ import java.util.List;
 
 @Repository
 public interface SongRepository extends JpaRepository<Song, Long> {
-    public List<Song> findByTitle(String title);
+    List<Song> findByTitle(String title);
 
-    public List<Song> findByArtist(String artist);
+    List<Song> findByArtist(String artist);
 
-    Page<Song> findAll(Pageable pageable);
+    @NonNull
+    Page<Song> findAll(@NonNull Pageable pageable);
+
+    List<Song> findByTitleContainingIgnoreCase(String query);
 
     @Query("SELECT s FROM Song s WHERE s.albumTitle = :albumTitle")
-    public List<Song> findByAlbum(@Param("albumTitle") String albumTitle);
+    List<Song> findByAlbum(@Param("albumTitle") String albumTitle);
 }

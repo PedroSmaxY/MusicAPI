@@ -2,6 +2,7 @@ package org.mfnm.musicapi.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.mfnm.musicapi.domain.user.User;
 import org.mfnm.musicapi.domain.user.UserRequestDTO;
 import org.mfnm.musicapi.services.UserService;
@@ -12,11 +13,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @Validated
 @AllArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -33,6 +35,12 @@ public class UserController {
         return ResponseEntity.ok().body(user);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<User>> searchUsers(@NonNull @RequestParam String query) {
+        List<User> users = this.userService.searchUser(query);
+        return ResponseEntity.ok().body(users);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody UserRequestDTO userRequestDTO) {
         User user = this.userService.login(userRequestDTO);
@@ -40,7 +48,7 @@ public class UserController {
         return ResponseEntity.ok().body(user);
     }
 
-    @PostMapping
+    @PostMapping("/register")
     @Validated
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         this.userService.create(user);

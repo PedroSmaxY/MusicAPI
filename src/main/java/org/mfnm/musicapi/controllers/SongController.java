@@ -3,6 +3,7 @@ package org.mfnm.musicapi.controllers;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.mfnm.musicapi.domain.song.Song;
 import org.mfnm.musicapi.domain.song.SongRequestDTO;
 import org.mfnm.musicapi.domain.song.SongResponseDTO;
@@ -12,6 +13,10 @@ import org.mfnm.musicapi.services.exceptions.BusinessLogicException;
 import org.mfnm.musicapi.services.exceptions.FileProcessingException;
 import org.mfnm.musicapi.services.exceptions.SongNotFoundException;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +31,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @Validated
-@RequestMapping("/song")
+@RequestMapping("/songs")
 @AllArgsConstructor
 public class SongController {
 
@@ -44,6 +49,32 @@ public class SongController {
         )).collect(Collectors.toList());
 
         return ResponseEntity.ok().body(responseDTOs);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<SongResponseDTO>> getAllSongs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "title") String sortBy) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<Song> songsPage = this.songService.findAllSongs(pageable);
+
+        Page<SongResponseDTO> responsePage = songsPage.map(song -> new SongResponseDTO(
+                song.getId(),
+                song.getTitle(),
+                song.getArtist(),
+                song.getAlbumTitle(),
+                song.getImageData() != null ? Base64.getEncoder().encodeToString(song.getImageData()) : null
+        ));
+
+        return ResponseEntity.ok(responsePage);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Song>> search(@NonNull @RequestParam String query) {
+        List<Song> songs = this.songService.search(query);
+        return ResponseEntity.ok(songs);
     }
 
     @GetMapping("/id/{id}")
@@ -159,4 +190,3 @@ public class SongController {
         return ResponseEntity.noContent().build();
     }
 }
-

@@ -2,12 +2,16 @@ package org.mfnm.musicapi.services;
 
 import lombok.AllArgsConstructor;
 import org.mfnm.musicapi.domain.user.User;
+import org.mfnm.musicapi.domain.user.UserRequestDTO;
 import org.mfnm.musicapi.repositories.PlaylistRepository;
 import org.mfnm.musicapi.repositories.UserRepository;
+import org.mfnm.musicapi.services.exceptions.UnauthorizedException;
 import org.mfnm.musicapi.services.exceptions.UserNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,6 +20,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PlaylistRepository playlistRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User findById(Long id) {
         Optional<User> user = this.userRepository.findById(id);
@@ -31,9 +36,32 @@ public class UserService {
         ));
     }
 
+    public List<User> searchUser(String query) {
+        return this.userRepository.findByUsernameContainingIgnoreCase(query);
+    }
+
+    public User login(UserRequestDTO userRequestDTO) {
+        String usernameOrEmail = userRequestDTO.usernameOrEmail();
+        String password = userRequestDTO.password();
+
+        User user = userRepository.findByUsername(usernameOrEmail)
+                .or(() -> userRepository.findByEmail(usernameOrEmail))
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User with username or email " + usernameOrEmail + " not found in the system."
+                ));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new UnauthorizedException("Incorrect password");
+        }
+
+        return user;
+    }
+
+
     @Transactional
     public User create(User user) {
         user.setId(null);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = this.userRepository.save(user);
         return user;
     }
@@ -48,7 +76,6 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long id) {
-
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found in the system."));
 

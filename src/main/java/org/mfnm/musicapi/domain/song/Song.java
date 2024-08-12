@@ -20,11 +20,11 @@ import java.util.List;
 @Table(name = Song.TABLE_NAME)
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Song {
 
-    public static final String TABLE_NAME = "song";
+    public static final String TABLE_NAME = "songs";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
